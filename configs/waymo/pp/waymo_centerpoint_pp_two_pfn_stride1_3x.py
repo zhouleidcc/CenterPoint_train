@@ -12,7 +12,11 @@ class_names = list(itertools.chain(*[t["class_names"] for t in tasks]))
 target_assigner = dict(
     tasks=tasks,
 )
-
+limit = 120
+limit = 80
+limit_range = [-limit, -limit, -10.0, limit, limit, 10.0]
+distant_range = 128
+distant_range = 74.8
 # model settings
 model = dict(
     type="PointPillars",
@@ -23,7 +27,7 @@ model = dict(
         num_input_features=5,
         with_distance=False,
         voxel_size=(0.32, 0.32, 6.0),
-        pc_range=(-74.88, -74.88, -2, 74.88, 74.88, 4.0),
+        pc_range=(-distant_range, -distant_range, -2, distant_range, distant_range, 4.0),
     ),
     backbone=dict(type="PointPillarsScatter", ds_factor=1),
     neck=dict(
@@ -60,14 +64,14 @@ assigner = dict(
 train_cfg = dict(assigner=assigner)
 
 test_cfg = dict(
-    post_center_limit_range=[-80, -80, -10.0, 80, 80, 10.0],
+    post_center_limit_range=limit_range,
     nms=dict(
         nms_pre_max_size=4096,
         nms_post_max_size=500,
         nms_iou_threshold=0.7,
     ),
     score_threshold=0.1,
-    pc_range=[-74.88, -74.88],
+    pc_range=[-distant_range, -distant_range],
     out_size_factor=get_downsample_factor(model),
     voxel_size=[0.32, 0.32]
 )
@@ -116,10 +120,10 @@ val_preprocessor = dict(
 )
 
 voxel_generator = dict(
-    range=[-74.88, -74.88, -2, 74.88, 74.88, 4.0],
+    range=[-distant_range, -distant_range, -2, distant_range, distant_range, 4.0],
     voxel_size=[0.32, 0.32, 6.0],
     max_points_in_voxel=20,
-    max_voxel_num=[32000, 60000], # we only use non-empty voxels. this will be much smaller than max_voxel_num
+    max_voxel_num=[96000, 200000], # we only use non-empty voxels. this will be much smaller than max_voxel_num
 )
 
 train_pipeline = [
@@ -140,11 +144,14 @@ test_pipeline = [
 ]
 
 train_anno = "data/Waymo/infos_train_01sweeps_filter_zero_gt.pkl"
-val_anno = "data/Waymo/infos_val_01sweeps_filter_zero_gt.pkl"
+# val_anno = "data/Waymo/infos_val_01sweeps_filter_zero_gt.pkl"
+# val_anno = "data/zf_office_200_frames_with_intense/infos_train_01sweeps_filter_zero_gt.pkl"
+val_anno = "data/jiuting_annotation/infos_val_01sweeps_filter_zero_gt.pkl"
+# val_anno = "data/zf_office_200_baidu/infos_train_01sweeps_filter_zero_gt.pkl"
 test_anno = None
 
 data = dict(
-    samples_per_gpu=4,
+    samples_per_gpu=8,
     workers_per_gpu=8,
     train=dict(
         type=dataset_type,
@@ -207,3 +214,4 @@ work_dir = './work_dirs/{}/'.format(__file__[__file__.rfind('/') + 1:-3])
 load_from = None 
 resume_from = None  
 workflow = [('train', 1)]
+

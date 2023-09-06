@@ -56,10 +56,12 @@ assigner = dict(
 
 
 train_cfg = dict(assigner=assigner)
-
+limit = 180
+limit_range = [-limit, -limit, -10.0, limit, limit, 10.0]
+distant_range = 160
 
 test_cfg = dict(
-    post_center_limit_range=[-80, -80, -10.0, 80, 80, 10.0],
+    post_center_limit_range=limit_range,
     nms=dict(
         use_rotate_nms=True,
         use_multi_class_nms=False,
@@ -68,7 +70,7 @@ test_cfg = dict(
         nms_iou_threshold=0.7,
     ),
     score_threshold=0.1,
-    pc_range=[-75.2, -75.2],
+    pc_range=[-distant_range, -distant_range],
     out_size_factor=get_downsample_factor(model),
     voxel_size=[0.1, 0.1],
 )
@@ -117,10 +119,10 @@ val_preprocessor = dict(
 )
 
 voxel_generator = dict(
-    range=[-75.2, -75.2, -2, 75.2, 75.2, 4],
+    range=[-distant_range, -distant_range, -2, distant_range, distant_range, 4],
     voxel_size=[0.1, 0.1, 0.15],
-    max_points_in_voxel=5,
-    max_voxel_num=[150000, 200000],
+    max_points_in_voxel=20,
+    max_voxel_num=[50000, 400000],
 )
 
 train_pipeline = [
@@ -141,7 +143,8 @@ test_pipeline = [
 ]
 
 train_anno = "data/Waymo/infos_train_01sweeps_filter_zero_gt.pkl"
-val_anno = "data/Waymo/infos_val_01sweeps_filter_zero_gt.pkl"
+# val_anno = "data/Waymo/infos_val_01sweeps_filter_zero_gt.pkl"
+val_anno = "data/jiuting_annotation/infos_val_01sweeps_filter_zero_gt.pkl"
 test_anno = None
 
 data = dict(
